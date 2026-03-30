@@ -1,0 +1,275 @@
+:root {
+    --bg:        #F3EFE8;
+    --surface:   #FDFAF6;
+    --border:    #E4D9C8;
+    --primary:   #2E5339;
+    --primary-h: #234028;
+    --accent:    #D95F2B;
+    --accent-h:  #BE4F22;
+    --text:      #1C1A17;
+    --muted:     #8A8070;
+    --bought:    #5A9E6F;
+    --shadow-sm: 0 1px 4px rgba(44,32,16,0.07);
+    --shadow-md: 0 4px 20px rgba(44,32,16,0.10);
+    --radius-lg: 18px;
+    --radius-md: 11px;
+    --radius-sm: 8px;
+}
+ 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 48px;
+    min-height: 100vh;
+}
+ 
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+ 
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: center;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    padding: 8px 0 4px;
+}
+ 
+h1::after {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 99px;
+    margin: 10px auto 0;
+}
+ 
+h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.70rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 14px;
+}
+ 
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+}
+ 
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+ 
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 11px 15px;
+    margin: 5px 0;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.18s, background 0.18s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+ 
+input::placeholder { color: var(--muted); }
+ 
+input:focus,
+select:focus {
+    border-color: var(--primary);
+    background: #fff;
+}
+ 
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A8070' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+}
+ 
+#addBtn {
+    width: 100%;
+    padding: 13px 18px;
+    margin: 10px 0 0;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s;
+}
+ 
+#addBtn:hover  { background: var(--primary-h); }
+#addBtn:active { transform: scale(0.98); }
+ 
+.item {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.22s ease both;
+}
+ 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+ 
+.item:last-child { border-bottom: none; }
+ 
+.item > div:first-child {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text);
+}
+ 
+.item > div:first-child strong {
+    font-size: 15.5px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 1px;
+}
+ 
+.buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+ 
+.buttons button {
+    flex: 1;
+    min-width: 64px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    white-space: nowrap;
+}
+ 
+.buttons button:hover {
+    background: var(--border);
+}
+ 
+.buttons button:active { transform: scale(0.96); }
+ 
+.buttons button:nth-child(1),
+.buttons button:nth-child(2) {
+    flex: 0 0 auto;
+    min-width: 38px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary);
+    border-color: var(--primary);
+    background: transparent;
+}
+ 
+.buttons button:nth-child(1):hover,
+.buttons button:nth-child(2):hover {
+    background: var(--primary);
+    color: #fff;
+}
+ 
+.buttons button:nth-child(3) {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+ 
+.buttons button:nth-child(3):hover {
+    background: var(--accent-h);
+    border-color: var(--accent-h);
+}
+ 
+.buttons button:last-child {
+    color: #b04040;
+    border-color: #e0c0c0;
+    background: #fdf5f5;
+}
+ 
+.buttons button:last-child:hover {
+    background: #fce8e8;
+    border-color: #c07070;
+}
+ 
+#pantryList .buttons button:nth-child(1) {
+    flex: 1;
+    min-width: unset;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+ 
+#pantryList .buttons button:nth-child(1):hover {
+    background: var(--accent-h);
+    border-color: var(--accent-h);
+}
+ 
+.empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 14px 0 6px;
+}
+ 
+.bought {
+    text-decoration: line-through;
+    color: var(--bought);
+}
+
+.img {
+    display: flex;
+    justify-content: center;
+}
+
+.img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: solid var(--primary);
+    object-fit: cover;
+}
+ 
+@media (max-width: 360px) {
+    h1 { font-size: 1.65rem; }
+    .buttons button { font-size: 12px; padding: 7px 8px; }
+}

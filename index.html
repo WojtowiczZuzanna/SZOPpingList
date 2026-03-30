@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SZOPping List</title>
+    <link rel="stylesheet" href="styles.css">
+    <div class="img">
+        <img src="./szop.png" alt="szop">
+    </div>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>SZOPping List</h1>
+
+        <div class="card">
+            <h2>Dodaj produkt</h2>
+            <input type="text" id="name" placeholder="Nazwa produktu">
+            <select id="type">
+                <option value="Produkt-spożywczy">Produkt spożywczy</option>
+                <option value="Chemia">Chemia</option>
+                <option value="Kosmetyki">Kosmetyki</option>
+                <option value="Inne">Inne</option>
+            </select>
+            <input type="number" id="quantity" placeholder="Ilość" min="1" value="1">
+            <button id="addBtn">Dodaj produkt</button>
+        </div>
+
+        <div class="card">
+            <h2>Lista zakupów</h2>
+            <div id="productsList"></div>
+        </div>
+
+        <div class="card">
+            <h2>Stan zakupów w domu</h2>
+            <div id="pantryList"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            addDoc,
+            deleteDoc,
+            updateDoc,
+            doc,
+            getDoc,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANIzf32hLNYlEni8EF-nsf6dccMY-P9zQ",
+            authDomain: "szoppinglist.firebaseapp.com",
+            projectId: "szoppinglist",
+            storageBucket: "szoppinglist.firebasestorage.app",
+            messagingSenderId: "837864433148",
+            appId: "1:837864433148:web:50efee24f01e8eb3803e79",
+            measurementId: "G-3M29X2X88H"
+                };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const nameInput = document.getElementById("name");
+        const typeInput = document.getElementById("type");
+        const quantityInput = document.getElementById("quantity");
+        const addBtn = document.getElementById("addBtn");
+        const productsList = document.getElementById("productsList");
+        const pantryList = document.getElementById("pantryList");
+
+        async function loadProducts() {
+            productsList.innerHTML = "";
+
+            const querySnapshot = await getDocs(collection(db, "products"));
+
+            if (querySnapshot.empty) {
+                productsList.innerHTML = "<p class='empty'>Brak produktów na liście.</p>";
+                return;
+            }
+
+            querySnapshot.forEach((productDoc) => {
+                const product = productDoc.data();
+
+                const div = document.createElement("div");
+                div.className = "item";
+
+                const title = document.createElement("div");
+                title.innerHTML = `
+                    <strong class="${product.bought ? 'bought' : ''}">${product.name}</strong><br>
+                    Rodzaj: ${product.type}<br>
+                    Ilość: ${product.quantity}<br>
+                    Status: ${product.bought ? 'Kupione' : 'Do kupienia'}
+                `;
+
+                const buttonsDiv = document.createElement("div");
+                buttonsDiv.className = "buttons";
+
+                const increaseBtn = document.createElement("button");
+                increaseBtn.textContent = "+";
+                increaseBtn.onclick = async () => {
+                    await updateDoc(doc(db, "products", productDoc.id), {
+                        quantity: product.quantity + 1
+                    });
+                    loadProducts();
+                };
+
+                const decreaseBtn = document.createElement("button");
+                decreaseBtn.textContent = "-";
+                decreaseBtn.onclick = async () => {
+                    if (product.quantity > 1) {
+                        await updateDoc(doc(db, "products", productDoc.id), {
+                            quantity: product.quantity - 1
+                        });
+                        loadProducts();
+                    }
+                };
+
+                const boughtBtn = document.createElement("button");
+                boughtBtn.textContent = "Kupione";
+                boughtBtn.onclick = async () => {
+                    await markAsBought(productDoc.id, product);
+                };
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "Usuń";
+                deleteBtn.onclick = async () => {
+                    await deleteDoc(doc(db, "products", productDoc.id));
+                    loadProducts();
+                };
+
+                buttonsDiv.appendChild(increaseBtn);
+                buttonsDiv.appendChild(decreaseBtn);
+                buttonsDiv.appendChild(boughtBtn);
+                buttonsDiv.appendChild(deleteBtn);
+
+                div.appendChild(title);
+                div.appendChild(buttonsDiv);
+
+                productsList.appendChild(div);
+            });
+        }
+
+        async function loadPantry() {
+            pantryList.innerHTML = "";
+
+            const querySnapshot = await getDocs(collection(db, "pantry"));
+
+            if (querySnapshot.empty) {
+                pantryList.innerHTML = "<p class='empty'>Magazyn jest pusty.</p>";
+                return;
+            }
+
+            querySnapshot.forEach((pantryDoc) => {
+                const item = pantryDoc.data();
+
+                const div = document.createElement("div");
+                div.className = "item";
+
+                const title = document.createElement("div");
+                title.innerHTML = `
+                    <strong>${item.name}</strong><br>
+                    Rodzaj: ${item.type}<br>
+                    Ilość w domu: ${item.quantity}
+                `;
+
+                const buttonsDiv = document.createElement("div");
+                buttonsDiv.className = "buttons";
+
+                const useBtn = document.createElement("button");
+                useBtn.textContent = "Zużyto 1";
+                useBtn.onclick = async () => {
+                    if (item.quantity > 1) {
+                        await updateDoc(doc(db, "pantry", pantryDoc.id), {
+                            quantity: item.quantity - 1
+                        });
+                    } else {
+                        await deleteDoc(doc(db, "pantry", pantryDoc.id));
+                    }
+                    loadPantry();
+                };
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "Usuń z magazynu";
+                deleteBtn.onclick = async () => {
+                    await deleteDoc(doc(db, "pantry", pantryDoc.id));
+                    loadPantry();
+                };
+
+                buttonsDiv.appendChild(useBtn);
+                buttonsDiv.appendChild(deleteBtn);
+
+                div.appendChild(title);
+                div.appendChild(buttonsDiv);
+
+                pantryList.appendChild(div);
+            });
+        }
+
+        async function markAsBought(productId, product) {
+            const pantryRef = doc(db, "pantry", product.name);
+            const pantrySnap = await getDoc(pantryRef);
+
+            if (pantrySnap.exists()) {
+                const pantryData = pantrySnap.data();
+                await updateDoc(pantryRef, {
+                    quantity: pantryData.quantity + product.quantity
+                });
+            } else {
+                await setDoc(pantryRef, {
+                    name: product.name,
+                    type: product.type,
+                    quantity: product.quantity
+                });
+            }
+
+            await updateDoc(doc(db, "products", productId), {
+                bought: true
+            });
+
+            await deleteDoc(doc(db, "products", productId));
+
+            loadProducts();
+            loadPantry();
+        }
+
+        addBtn.onclick = async () => {
+            const name = nameInput.value.trim();
+            const type = typeInput.value;
+            const quantity = parseInt(quantityInput.value);
+
+            if (name === "" || isNaN(quantity) || quantity < 1) {
+                alert("Wpisz poprawne dane.");
+                return;
+            }
+
+            await addDoc(collection(db, "products"), {
+                name: name,
+                type: type,
+                quantity: quantity,
+                bought: false
+            });
+
+            nameInput.value = "";
+            quantityInput.value = "1";
+
+            loadProducts();
+        };
+
+        loadProducts();
+        loadPantry();
+    </script>
+
+</body>
+</html>
